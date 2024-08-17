@@ -15,13 +15,13 @@ func NewAuthRepository(db *mongo.Database, collection string) *AuthRepository {
 	return &AuthRepository{db: db.Collection(collection)}
 }
 
-func (r *AuthRepository) CreateUser(ctx context.Context, user models.User) (models.UserReceiveDTO, error) {
+func (r *AuthRepository) CreateUser(ctx context.Context, user models.User) (models.UserDTO, error) {
 	_, err := r.db.InsertOne(ctx, &user)
 	if err != nil {
-		return models.UserReceiveDTO{}, err
+		return models.UserDTO{}, err
 	}
 
-	return models.UserReceiveDTO{ID: user.ID, Username: user.Username}, nil
+	return models.UserDTO{ID: user.ID, Username: user.Username}, nil
 }
 
 func (r *AuthRepository) GetUser(ctx context.Context, username string) (models.User, error) {
