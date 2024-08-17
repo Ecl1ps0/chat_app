@@ -19,6 +19,11 @@ func NewAuthHandler(usecase Usecase) *Handler {
 }
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	var userData models.UserCreateDTO
 	if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -41,6 +46,11 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	var userData models.UserCreateDTO
 	if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
