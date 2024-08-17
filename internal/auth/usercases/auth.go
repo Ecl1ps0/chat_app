@@ -13,7 +13,7 @@ import (
 
 type TokenClaims struct {
 	jwt.RegisteredClaims
-	User models.UserReceiveDTO `json:"user"`
+	User models.UserDTO `json:"user"`
 }
 
 type AuthUsecase struct {
@@ -24,9 +24,9 @@ func NewAuthUsecase(repo repository.AuthRepository) *AuthUsecase {
 	return &AuthUsecase{repo: repo}
 }
 
-func (u *AuthUsecase) SignUp(ctx context.Context, user models.User) (models.UserReceiveDTO, error) {
+func (u *AuthUsecase) SignUp(ctx context.Context, user models.User) (models.UserDTO, error) {
 	if _, err := u.repo.GetUser(ctx, user.Username); err == nil {
-		return models.UserReceiveDTO{}, errors.New("such user already exist")
+		return models.UserDTO{}, errors.New("such user already exist")
 	}
 
 	user.Password = util.GenerateHash(user.Password)
@@ -43,7 +43,7 @@ func (u *AuthUsecase) SignIn(ctx context.Context, username, password string) (st
 		return "", errors.New("wrong password")
 	}
 
-	userDTO := models.UserReceiveDTO{
+	userDTO := models.UserDTO{
 		ID:       candidate.ID,
 		Username: username,
 	}
@@ -58,7 +58,7 @@ func (u *AuthUsecase) SignIn(ctx context.Context, username, password string) (st
 	return token.SignedString([]byte(os.Getenv("SIGN_KEY")))
 }
 
-func (u *AuthUsecase) ParseToken(ctx context.Context, accessToken string) (models.UserReceiveDTO, error) {
+func (u *AuthUsecase) ParseToken(ctx context.Context, accessToken string) (models.UserDTO, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
@@ -67,12 +67,12 @@ func (u *AuthUsecase) ParseToken(ctx context.Context, accessToken string) (model
 		return []byte(os.Getenv("SIGN_KEY")), nil
 	})
 	if err != nil {
-		return models.UserReceiveDTO{}, err
+		return models.UserDTO{}, err
 	}
 
 	claims, ok := token.Claims.(*TokenClaims)
 	if !ok {
-		return models.UserReceiveDTO{}, errors.New("invalid access token")
+		return models.UserDTO{}, errors.New("invalid access token")
 	}
 
 	return claims.User, nil
