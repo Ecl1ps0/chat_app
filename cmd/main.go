@@ -3,7 +3,7 @@ package main
 import (
 	"ChatApp/internal/auth"
 	"ChatApp/internal/auth/repository"
-	"ChatApp/internal/auth/usercases"
+	"ChatApp/internal/auth/usecase"
 	"ChatApp/pkg/mongo"
 	server2 "ChatApp/pkg/server"
 	"context"
@@ -28,7 +28,7 @@ func main() {
 	router := http.NewServeMux()
 
 	authRepo := repository.NewAuthRepository(db.Database("ChatApp"), "users")
-	authHandler := auth.NewAuthHandler(usercases.NewAuthUsecase(*authRepo))
+	authHandler := auth.NewAuthHandler(usecase.NewAuthUsecase(*authRepo))
 	authHandler.AuthRouterInit(router)
 
 	server := new(server2.Server)
