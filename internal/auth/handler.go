@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-type Handler struct {
+type AuthHandler struct {
 	usecase Usecase
 }
 
-func NewAuthHandler(usecase Usecase) *Handler {
-	return &Handler{usecase: usecase}
+func NewAuthHandler(usecase Usecase) *AuthHandler {
+	return &AuthHandler{usecase: usecase}
 }
 
-func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -45,7 +45,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	util.JSONResponse(w, http.StatusOK, userDTO)
 }
 
-func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
