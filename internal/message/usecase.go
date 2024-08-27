@@ -1,4 +1,4 @@
-package chat
+package message
 
 import (
 	models2 "ChatApp/internal/message/models"
