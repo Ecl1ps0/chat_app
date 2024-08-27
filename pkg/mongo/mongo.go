@@ -15,11 +15,6 @@ func InitDB(uri string) (*mongo.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	//defer func() {
-	//	if err = client.Disconnect(context.TODO()); err != nil {
-	//		panic(err)
-	//	}
-	//}()
 
 	if err = client.Database("ChatApp").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
 		return nil, err
