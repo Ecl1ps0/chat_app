@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (h *Handler) AuthMiddleware(next http.Handler) http.HandlerFunc {
+func (h *AuthHandler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
 		if header == "" {
