@@ -4,6 +4,11 @@ import (
 	"ChatApp/internal/auth"
 	"ChatApp/internal/auth/repository"
 	"ChatApp/internal/auth/usecase"
+	"ChatApp/internal/chat"
+	repository2 "ChatApp/internal/chat/repository"
+	usecase2 "ChatApp/internal/chat/usecase"
+	repository3 "ChatApp/internal/message/repository"
+	usecase3 "ChatApp/internal/message/usecase"
 	"ChatApp/pkg/mongo"
 	server2 "ChatApp/pkg/server"
 	"context"
@@ -28,8 +33,14 @@ func main() {
 	router := http.NewServeMux()
 
 	authRepo := repository.NewAuthRepository(db.Database("ChatApp"), "users")
+	chatRepo := repository2.NewChatRepository(db.Database("ChatApp"), "chats")
+	messageRepo := repository3.NewMessageRepository(db.Database("ChatApp"), "messages")
+
 	authHandler := auth.NewAuthHandler(usecase.NewAuthUsecase(*authRepo))
 	authHandler.AuthRouterInit(router)
+
+	chatHandler := chat.NewChatHandler(usecase2.NewChatUsecase(*chatRepo), usecase3.NewMessageUsecase(*messageRepo))
+	chatHandler.ChatRouterInit(router)
 
 	server := new(server2.Server)
 	go func() {
