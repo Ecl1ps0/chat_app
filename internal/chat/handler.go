@@ -54,6 +54,7 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(msg, &usersIds); err != nil {
 		log.Fatalf("fail to unmarshal: %s", err.Error())
+		return
 	}
 
 	user1ID, err := primitive.ObjectIDFromHex(usersIds.User1ID)
@@ -74,7 +75,7 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Chat successfully started with chat id: %s", chat.ID.String())
+	log.Printf("Chat successfully started with id: %s", chat.ID.Hex())
 
 	h.mu.Lock()
 	h.connections[chat.ID] = append(h.connections[chat.ID], conn)
@@ -126,7 +127,7 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, senderId, message stri
 
 	conns, ok := h.connections[chat.ID]
 	if !ok {
-		log.Fatalf("the chat with id: %s does not exist", chat.ID.String())
+		log.Fatalf("the chat with id: %s does not exist", chat.ID.Hex())
 		return
 	}
 

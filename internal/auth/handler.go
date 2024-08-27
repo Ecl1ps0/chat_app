@@ -27,6 +27,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userData models.UserCreateDTO
 	if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	user := models.User{
@@ -54,6 +55,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var userData models.UserCreateDTO
 	if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	token, err := h.usecase.SignIn(context.TODO(), userData.Username, userData.Password)
