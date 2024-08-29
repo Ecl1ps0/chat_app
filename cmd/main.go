@@ -16,6 +16,7 @@ import (
 	server2 "ChatApp/pkg/server"
 	"context"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
@@ -50,9 +51,16 @@ func main() {
 	userHandler := user.NewUserHandler(usecase4.NewUserUsecase(userRepo))
 	userHandler.UserRouterInit(router, authHandler)
 
+	handler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	}).Handler(router)
+
 	server := new(server2.Server)
 	go func() {
-		if err := server.Run("8080", router); err != nil {
+		if err := server.Run("8080", handler); err != nil {
 			log.Fatalf("error occured while running server: %s", err.Error())
 		}
 	}()
