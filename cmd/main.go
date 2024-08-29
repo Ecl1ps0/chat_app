@@ -9,6 +9,9 @@ import (
 	usecase2 "ChatApp/internal/chat/usecase"
 	repository3 "ChatApp/internal/message/repository"
 	usecase3 "ChatApp/internal/message/usecase"
+	"ChatApp/internal/user"
+	repository4 "ChatApp/internal/user/repository"
+	usecase4 "ChatApp/internal/user/usecase"
 	"ChatApp/pkg/mongo"
 	server2 "ChatApp/pkg/server"
 	"context"
@@ -30,17 +33,22 @@ func main() {
 		log.Fatalf("fail to connect database: %s", err.Error())
 	}
 
+	database := db.Database("ChatApp")
 	router := http.NewServeMux()
 
-	authRepo := repository.NewAuthRepository(db.Database("ChatApp"), "users")
-	chatRepo := repository2.NewChatRepository(db.Database("ChatApp"), "chats")
-	messageRepo := repository3.NewMessageRepository(db.Database("ChatApp"), "messages")
+	authRepo := repository.NewAuthRepository(database, "users")
+	chatRepo := repository2.NewChatRepository(database, "chats")
+	messageRepo := repository3.NewMessageRepository(database, "messages")
+	userRepo := repository4.NewUserRepository(database, "users")
 
 	authHandler := auth.NewAuthHandler(usecase.NewAuthUsecase(*authRepo))
 	authHandler.AuthRouterInit(router)
 
 	chatHandler := chat.NewChatHandler(usecase2.NewChatUsecase(*chatRepo), usecase3.NewMessageUsecase(*messageRepo))
 	chatHandler.ChatRouterInit(router)
+
+	userHandler := user.NewUserHandler(usecase4.NewUserUsecase(userRepo))
+	userHandler.UserRouterInit(router, authHandler)
 
 	server := new(server2.Server)
 	go func() {
