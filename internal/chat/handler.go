@@ -48,30 +48,37 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 	var usersIds models.UsersIdsDTO
 	_, msg, err := conn.ReadMessage()
 	if err != nil {
-		log.Fatalf("fail to read message: %s", err.Error())
+		log.Printf("fail to read message: %s", err.Error())
 		return
 	}
 
 	if err = json.Unmarshal(msg, &usersIds); err != nil {
-		log.Fatalf("fail to unmarshal: %s", err.Error())
+		log.Printf("fail to unmarshal: %s", err.Error())
 		return
 	}
 
 	user1ID, err := primitive.ObjectIDFromHex(usersIds.User1ID)
 	if err != nil {
-		log.Fatalf("invalid user1 ID: %s", err.Error())
+		log.Printf("invalid user1 ID: %s", err.Error())
 		return
 	}
 
 	user2ID, err := primitive.ObjectIDFromHex(usersIds.User2ID)
 	if err != nil {
-		log.Fatalf("invalid user2 ID: %s", err.Error())
+		log.Printf("invalid user2 ID: %s", err.Error())
 		return
 	}
 
 	chat, err := h.chatUsecase.CreateOrGetChat(context.TODO(), []primitive.ObjectID{user1ID, user2ID})
 	if err != nil {
-		log.Fatalf("fail to get or create chat: %s", err.Error())
+		log.Printf("fail to get or create chat: %s", err.Error())
+		return
+	}
+
+	if err = conn.WriteJSON(map[string]interface{}{
+		"chat_messages": chat.Messages,
+	}); err != nil {
+		log.Printf("fail to send json response: %s", err.Error())
 		return
 	}
 
@@ -85,13 +92,18 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, msg, err = conn.ReadMessage()
 		if err != nil {
-			log.Fatalf("fail to read a message: %s", err.Error())
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+				log.Printf("WebSocket connection closed normally: %s", err.Error())
+				break
+			}
+
+			log.Printf("fail to read a message: %s", err.Error())
 			return
 		}
 
 		if err = json.Unmarshal(msg, &messageDTO); err != nil {
-			log.Fatalf("fail to unmarshal message: %s", err.Error())
-			return
+			log.Printf("fail to unmarshal message: %s", err.Error())
+			continue
 		}
 
 		h.broadcastMessage(&chat, messageDTO.SenderID, messageDTO.Message)
@@ -104,7 +116,7 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, senderId, message stri
 
 	sender, err := primitive.ObjectIDFromHex(senderId)
 	if err != nil {
-		log.Fatalf("invalid sender id: %s", err.Error())
+		log.Printf("invalid sender id: %s", err.Error())
 		return
 	}
 
@@ -116,30 +128,30 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, senderId, message stri
 	}
 
 	if err = h.messageUsecase.SaveMessage(context.TODO(), msg); err != nil {
-		log.Fatalf("fail to save message: %s", err.Error())
+		log.Printf("fail to save message: %s", err.Error())
 		return
 	}
 
 	if err = h.chatUsecase.SaveMessageToChat(context.TODO(), msg, chat.ID); err != nil {
-		log.Fatalf("fail to save message to chat: %s", err.Error())
+		log.Printf("fail to save message to chat: %s", err.Error())
 		return
 	}
 
 	conns, ok := h.connections[chat.ID]
 	if !ok {
-		log.Fatalf("the chat with id: %s does not exist", chat.ID.Hex())
+		log.Printf("the chat with id: %s does not exist", chat.ID.Hex())
 		return
 	}
 
 	msgJSON, err := json.Marshal(msg)
 	if err != nil {
-		log.Fatalf("fail to marshal message: %s", err.Error())
+		log.Printf("fail to marshal message: %s", err.Error())
 		return
 	}
 
 	for _, conn := range conns {
 		if err = conn.WriteMessage(websocket.TextMessage, msgJSON); err != nil {
-			log.Fatalf("fail to send message: %s", err.Error())
+			log.Printf("fail to send message: %s", err.Error())
 			return
 		}
 	}
