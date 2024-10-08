@@ -6,5 +6,5 @@ import (
 )
 
 func (h *UserHandler) UserRouterInit(router *http.ServeMux, authHandler *auth.AuthHandler) {
-	router.HandleFunc("/available-users", authHandler.AuthMiddleware(h.GetAllAvailableUsers))
+	router.HandleFunc("api/user/available-users", authHandler.AuthMiddleware(h.GetAllAvailableUsers))
 }
