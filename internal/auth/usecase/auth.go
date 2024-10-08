@@ -24,12 +24,13 @@ func NewAuthUsecase(repo repository.AuthRepository) *AuthUsecase {
 	return &AuthUsecase{repo: repo}
 }
 
-func (u *AuthUsecase) SignUp(ctx context.Context, user models.User) (models.UserDTO, error) {
+func (u *AuthUsecase) SignUp(ctx context.Context, user models.User) error {
 	if _, err := u.repo.GetUser(ctx, user.Username); err == nil {
-		return models.UserDTO{}, errors.New("such user already exist")
+		return errors.New("such user already exist")
 	}
 
 	user.Password = util.GenerateHash(user.Password)
+
 	return u.repo.CreateUser(ctx, user)
 }
 

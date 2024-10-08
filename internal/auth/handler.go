@@ -37,13 +37,12 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now().Unix(),
 	}
 
-	userDTO, err := h.usecase.SignUp(context.TODO(), user)
-	if err != nil {
+	if err := h.usecase.SignUp(context.TODO(), user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	util.JSONResponse(w, http.StatusOK, userDTO)
+	util.JSONResponse(w, http.StatusOK, nil)
 }
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -64,5 +63,13 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.JSONResponse(w, http.StatusOK, map[string]string{"accessToken": token})
+	authCookie := http.Cookie{
+		Name:  "auth_cookie",
+		Value: token,
+		Path:  "/",
+	}
+
+	http.SetCookie(w, &authCookie)
+
+	util.JSONResponse(w, http.StatusOK, map[string]string{"access_token": token})
 }
