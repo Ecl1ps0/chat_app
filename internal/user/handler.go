@@ -4,6 +4,7 @@ import (
 	"ChatApp/util"
 	"context"
 	"net/http"
+	"strings"
 )
 
 type UserHandler struct {
@@ -20,7 +21,18 @@ func (h *UserHandler) GetAllAvailableUsers(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	usersDTO, err := h.usecase.GetAllUsersDTO(context.TODO())
+	token := r.Header.Get("Authorization")
+	tokenParts := strings.Split(token, " ")
+	user, err := util.ParseToken(tokenParts[1])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "userId", user.ID)
+
+	usersDTO, err := h.usecase.GetAllUsersDTO(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
