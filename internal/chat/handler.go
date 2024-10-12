@@ -98,6 +98,16 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 			}
 
 			log.Printf("fail to read a message: %s", err.Error())
+
+			h.mu.Lock()
+			conns := h.connections[chat.ID]
+			for i, c := range conns {
+				if c == conn {
+					h.connections[chat.ID] = append(conns[:i], conns[i+1:]...)
+					break
+				}
+			}
+			h.mu.Unlock()
 			return
 		}
 
