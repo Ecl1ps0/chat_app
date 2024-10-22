@@ -1,17 +1,17 @@
 package usecase
 
 import (
+	"ChatApp/internal/message"
 	models2 "ChatApp/internal/message/models"
-	"ChatApp/internal/message/repository"
 	"context"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type MessageUsecase struct {
-	repo repository.MessageRepository
+	repo message.Repository
 }
 
-func NewMessageUsecase(repo repository.MessageRepository) *MessageUsecase {
+func NewMessageUsecase(repo message.Repository) *MessageUsecase {
 	return &MessageUsecase{repo: repo}
 }
 
