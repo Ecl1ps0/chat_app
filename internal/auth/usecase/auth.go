@@ -1,18 +1,18 @@
 package usecase
 
 import (
+	"ChatApp/internal/auth"
 	"ChatApp/internal/auth/models"
-	"ChatApp/internal/auth/repository"
 	"ChatApp/util"
 	"context"
 	"errors"
 )
 
 type AuthUsecase struct {
-	repo repository.AuthRepository
+	repo auth.Repository
 }
 
-func NewAuthUsecase(repo repository.AuthRepository) *AuthUsecase {
+func NewAuthUsecase(repo auth.Repository) *AuthUsecase {
 	return &AuthUsecase{repo: repo}
 }
 

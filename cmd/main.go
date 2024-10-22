@@ -7,6 +7,9 @@ import (
 	"ChatApp/internal/chat"
 	repository2 "ChatApp/internal/chat/repository"
 	usecase2 "ChatApp/internal/chat/usecase"
+	"ChatApp/internal/image"
+	repository5 "ChatApp/internal/image/repository"
+	usecase5 "ChatApp/internal/image/usecase"
 	repository3 "ChatApp/internal/message/repository"
 	usecase3 "ChatApp/internal/message/usecase"
 	"ChatApp/internal/user"
@@ -41,15 +44,19 @@ func main() {
 	chatRepo := repository2.NewChatRepository(database, "chats")
 	messageRepo := repository3.NewMessageRepository(database, "messages")
 	userRepo := repository4.NewUserRepository(database, "users")
+	imageRepo := repository5.NewImageRepository(database, "images")
 
-	authHandler := auth.NewAuthHandler(usecase.NewAuthUsecase(*authRepo))
+	authHandler := auth.NewAuthHandler(usecase.NewAuthUsecase(authRepo))
 	authHandler.AuthRouterInit(router)
 
-	chatHandler := chat.NewChatHandler(usecase2.NewChatUsecase(*chatRepo), usecase3.NewMessageUsecase(*messageRepo))
+	chatHandler := chat.NewChatHandler(usecase2.NewChatUsecase(chatRepo), usecase3.NewMessageUsecase(messageRepo), usecase5.NewImageUsecase(imageRepo))
 	chatHandler.ChatRouterInit(router)
 
 	userHandler := user.NewUserHandler(usecase4.NewUserUsecase(userRepo))
 	userHandler.UserRouterInit(router, authHandler)
+
+	imageHandler := image.NewImageHandler(usecase5.NewImageUsecase(imageRepo))
+	imageHandler.ImageRouterInit(router)
 
 	handler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},

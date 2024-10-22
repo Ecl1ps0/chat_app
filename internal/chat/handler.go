@@ -2,6 +2,7 @@ package chat
 
 import (
 	"ChatApp/internal/chat/models"
+	"ChatApp/internal/image"
 	"ChatApp/internal/message"
 	models2 "ChatApp/internal/message/models"
 	"context"
@@ -17,6 +18,7 @@ import (
 type ChatHandler struct {
 	chatUsecase    Usecase
 	messageUsecase message.Usecase
+	imageUsecase   image.Usecase
 	connections    map[primitive.ObjectID][]*websocket.Conn
 	mu             sync.Mutex
 }
@@ -29,10 +31,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func NewChatHandler(chatUsecase Usecase, messageUsecase message.Usecase) *ChatHandler {
+func NewChatHandler(chatUsecase Usecase, messageUsecase message.Usecase, imageUsecase image.Usecase) *ChatHandler {
 	return &ChatHandler{
 		chatUsecase:    chatUsecase,
 		messageUsecase: messageUsecase,
+		imageUsecase:   imageUsecase,
 		connections:    make(map[primitive.ObjectID][]*websocket.Conn),
 	}
 }
@@ -116,24 +119,34 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		h.broadcastMessage(&chat, messageDTO.SenderID, messageDTO.Message)
+		h.broadcastMessage(&chat, messageDTO)
 	}
 }
 
-func (h *ChatHandler) broadcastMessage(chat *models.Chat, senderId, message string) {
+func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.MessageDTO) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	sender, err := primitive.ObjectIDFromHex(senderId)
+	sender, err := primitive.ObjectIDFromHex(messageDTO.SenderID)
 	if err != nil {
 		log.Printf("invalid sender id: %s", err.Error())
 		return
 	}
 
+	var images []primitive.ObjectID
+	if len(messageDTO.Images) != 0 {
+		images, err = h.imageUsecase.CreateImage(context.TODO(), messageDTO.Images)
+		if err != nil {
+			log.Printf("fail to save images: %s", err.Error())
+			return
+		}
+	}
+
 	msg := models2.Message{
 		ID:        primitive.NewObjectID(),
-		Message:   message,
+		Message:   &messageDTO.Message,
 		UserFrom:  sender,
+		ImageIDs:  &images,
 		CreatedAt: time.Now().Unix(),
 	}
 
