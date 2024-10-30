@@ -60,10 +60,9 @@ func main() {
 	imageHandler.ImageRouterInit(router)
 
 	handler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://chat-app-front-sigma.vercel.app"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		AllowCredentials: true,
+		AllowedOrigins: []string{"https://chat-app-front-sigma.vercel.app"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}).Handler(router)
 
 	server := new(server2.Server)
