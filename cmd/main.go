@@ -46,13 +46,19 @@ func main() {
 	userRepo := repository4.NewUserRepository(database, "users")
 	imageRepo := repository5.NewImageRepository(database, "images")
 
-	authHandler := auth.NewAuthHandler(usecase.NewAuthUsecase(authRepo))
+	authUc := usecase.NewAuthUsecase(authRepo)
+	chatUc := usecase2.NewChatUsecase(chatRepo)
+	messageUc := usecase3.NewMessageUsecase(messageRepo)
+	imageUc := usecase5.NewImageUsecase(imageRepo)
+	userUc := usecase4.NewUserUsecase(userRepo)
+
+	authHandler := auth.NewAuthHandler(authUc)
 	authHandler.AuthRouterInit(router)
 
-	chatHandler := chat.NewChatHandler(usecase2.NewChatUsecase(chatRepo), usecase3.NewMessageUsecase(messageRepo), usecase5.NewImageUsecase(imageRepo))
+	chatHandler := chat.NewChatHandler(chatUc, messageUc, imageUc)
 	chatHandler.ChatRouterInit(router)
 
-	userHandler := user.NewUserHandler(usecase4.NewUserUsecase(userRepo))
+	userHandler := user.NewUserHandler(userUc, imageUc)
 	userHandler.UserRouterInit(router, authHandler)
 
 	imageHandler := image.NewImageHandler(usecase5.NewImageUsecase(imageRepo))
