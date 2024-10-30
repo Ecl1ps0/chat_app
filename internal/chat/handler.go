@@ -135,7 +135,7 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.Mes
 
 	var images []primitive.ObjectID
 	if len(messageDTO.Images) != 0 {
-		images, err = h.imageUsecase.CreateImage(context.TODO(), messageDTO.Images)
+		images, err = h.imageUsecase.CreateImages(context.TODO(), messageDTO.Images)
 		if err != nil {
 			log.Printf("fail to save images: %s", err.Error())
 			return

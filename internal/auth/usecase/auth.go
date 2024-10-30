@@ -37,8 +37,11 @@ func (u *AuthUsecase) SignIn(ctx context.Context, username, password string) (st
 	}
 
 	userDTO := models.UserDTO{
-		ID:       candidate.ID,
-		Username: username,
+		ID:             candidate.ID,
+		Username:       username,
+		ProfilePicture: candidate.ProfilePicture,
+		Bio:            candidate.Bio,
+		Email:          candidate.Email,
 	}
 
 	return util.GenerateToken(userDTO)

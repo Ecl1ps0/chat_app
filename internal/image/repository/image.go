@@ -17,7 +17,7 @@ func NewImageRepository(db *mongo.Database, collection string) *ImageRepository 
 	return &ImageRepository{db: db.Collection(collection)}
 }
 
-func (r *ImageRepository) CreateImage(ctx context.Context, images []models.Image) ([]interface{}, error) {
+func (r *ImageRepository) CreateImages(ctx context.Context, images []models.Image) ([]interface{}, error) {
 	imageInterfaces := util.ToInterfaceSlice(images)
 
 	result, err := r.db.InsertMany(ctx, imageInterfaces)
@@ -26,6 +26,15 @@ func (r *ImageRepository) CreateImage(ctx context.Context, images []models.Image
 	}
 
 	return result.InsertedIDs, nil
+}
+
+func (r *ImageRepository) CreateImage(ctx context.Context, image models.Image) (interface{}, error) {
+	result, err := r.db.InsertOne(ctx, image)
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+
+	return result.InsertedID, nil
 }
 
 func (r *ImageRepository) GetImage(ctx context.Context, imageId primitive.ObjectID) ([]byte, error) {

@@ -24,8 +24,8 @@ func ToJPEG(code string) ([]byte, error) {
 	}
 
 	jpegData := imgBuffer.Bytes()
-	webpImgCode := make([]byte, base64.StdEncoding.EncodedLen(len(jpegData)))
-	base64.StdEncoding.Encode(webpImgCode, jpegData)
+	jpegImgCode := make([]byte, base64.StdEncoding.EncodedLen(len(jpegData)))
+	base64.StdEncoding.Encode(jpegImgCode, jpegData)
 
-	return webpImgCode, nil
+	return jpegImgCode, nil
 }

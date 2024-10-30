@@ -7,6 +7,7 @@ import (
 )
 
 type Repository interface {
-	CreateImage(ctx context.Context, images []models.Image) ([]interface{}, error)
+	CreateImages(ctx context.Context, images []models.Image) ([]interface{}, error)
+	CreateImage(ctx context.Context, image models.Image) (interface{}, error)
 	GetImage(ctx context.Context, imageId primitive.ObjectID) ([]byte, error)
 }
