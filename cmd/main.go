@@ -18,7 +18,6 @@ import (
 	"ChatApp/pkg/mongo"
 	server2 "ChatApp/pkg/server"
 	"context"
-	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
@@ -28,10 +27,6 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("error loading env: %s", err.Error())
-	}
-
 	db, err := mongo.InitDB(os.Getenv("MONGO_URI"))
 	if err != nil {
 		log.Fatalf("fail to connect database: %s", err.Error())
