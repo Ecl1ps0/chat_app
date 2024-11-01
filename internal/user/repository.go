@@ -9,5 +9,5 @@ import (
 type Repository interface {
 	GetAllUsersDTO(ctx context.Context) ([]models.UserDTO, error)
 	GetUserById(ctx context.Context, userId primitive.ObjectID) (models.UserDTO, error)
-	UpdateUser(ctx context.Context, updUser models.UserDTO) error
+	UpdateUser(ctx context.Context, updUser models.UserDTO, updateTime int64) error
 }

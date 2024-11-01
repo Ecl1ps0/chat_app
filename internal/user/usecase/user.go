@@ -6,6 +6,7 @@ import (
 	"ChatApp/util"
 	"context"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type UserUsecase struct {
@@ -29,7 +30,7 @@ func (u *UserUsecase) GetUserById(ctx context.Context, userId string) (models.Us
 }
 
 func (u *UserUsecase) UpdateUser(ctx context.Context, updUser models.UserDTO) (string, error) {
-	if err := u.repo.UpdateUser(ctx, updUser); err != nil {
+	if err := u.repo.UpdateUser(ctx, updUser, time.Now().Unix()); err != nil {
 		return "", err
 	}
 
