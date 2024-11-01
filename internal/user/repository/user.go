@@ -49,9 +49,9 @@ func (r *UserRepository) GetUserById(ctx context.Context, userId primitive.Objec
 	return user, nil
 }
 
-func (r *UserRepository) UpdateUser(ctx context.Context, updUser models.UserDTO) error {
+func (r *UserRepository) UpdateUser(ctx context.Context, updUser models.UserDTO, updateTime int64) error {
 	filter := bson.M{"_id": updUser.ID}
-	upd := bson.M{"$set": bson.M{"profile_picture": updUser.ProfilePicture, "bio": updUser.Bio, "email": updUser.Email}}
+	upd := bson.M{"$set": bson.M{"profile_picture": updUser.ProfilePicture, "bio": updUser.Bio, "email": updUser.Email, "updated_at": updateTime}}
 
 	_, err := r.db.UpdateOne(ctx, filter, upd)
 	return err
