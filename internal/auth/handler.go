@@ -64,9 +64,12 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authCookie := http.Cookie{
-		Name:  "auth_cookie",
-		Value: token,
-		Path:  "/",
+		Name:     "auth_cookie",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	}
 
 	http.SetCookie(w, &authCookie)
