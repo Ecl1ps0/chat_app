@@ -15,7 +15,7 @@ func NewImageHandler(usecase Usecase) *ImageHandler {
 
 func (h *ImageHandler) GetImage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 
