@@ -8,6 +8,6 @@ import (
 )
 
 type Repository interface {
-	CreateOrGetChat(ctx context.Context, usersIds []primitive.ObjectID) (models.Chat, error)
-	SaveMessageToChat(ctx context.Context, message models2.Message, chatId primitive.ObjectID) error
+	CreateOrGetChat(ctx context.Context, usersIds []primitive.ObjectID) (models.Chat, []models2.Message, error)
+	SaveMessageToChat(ctx context.Context, messageId primitive.ObjectID, chatId primitive.ObjectID) error
 }
