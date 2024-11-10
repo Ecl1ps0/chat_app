@@ -45,7 +45,7 @@ func (u *ImageUsecase) CreateImages(ctx context.Context, imageCodes []string) ([
 func (u *ImageUsecase) CreateImage(ctx context.Context, imageCode string) (primitive.ObjectID, error) {
 	jpegCode, err := util.ToJPEG(imageCode)
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return primitive.NilObjectID, err
 	}
 
 	img := models.Image{
@@ -56,12 +56,12 @@ func (u *ImageUsecase) CreateImage(ctx context.Context, imageCode string) (primi
 
 	imgIdInterface, err := u.repo.CreateImage(ctx, img)
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return primitive.NilObjectID, err
 	}
 
 	imgId, ok := imgIdInterface.(primitive.ObjectID)
 	if !ok {
-		return primitive.ObjectID{}, errors.New("Fail to parse image id from interface")
+		return primitive.NilObjectID, errors.New("Fail to parse image id from interface")
 	}
 
 	return imgId, nil
