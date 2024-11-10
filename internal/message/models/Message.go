@@ -10,4 +10,5 @@ type Message struct {
 	UserFrom  primitive.ObjectID    `json:"user_from" bson:"user_from"`
 	ImageIDs  *[]primitive.ObjectID `json:"images,omitempty" bson:"images"`
 	CreatedAt int64                 `json:"created_at" bson:"created_at"`
+	UpdatedAt int64                 `json:"updated_at" bson:"updated_at"`
 }
