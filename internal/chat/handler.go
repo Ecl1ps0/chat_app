@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
+	"sort"
 	"sync"
 	"time"
 )
@@ -72,14 +73,18 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	chat, err := h.chatUsecase.CreateOrGetChat(context.TODO(), []primitive.ObjectID{user1ID, user2ID})
+	chat, messages, err := h.chatUsecase.CreateOrGetChat(context.TODO(), []primitive.ObjectID{user1ID, user2ID})
 	if err != nil {
 		log.Printf("fail to get or create chat: %s", err.Error())
 		return
 	}
 
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].CreatedAt < messages[j].CreatedAt
+	})
+
 	if err = conn.WriteJSON(map[string]interface{}{
-		"chat_messages": chat.Messages,
+		"chat_messages": messages,
 	}); err != nil {
 		log.Printf("fail to send json response: %s", err.Error())
 		return
@@ -127,37 +132,43 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.Mes
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	sender, err := primitive.ObjectIDFromHex(messageDTO.SenderID)
-	if err != nil {
-		log.Printf("invalid sender id: %s", err.Error())
-		return
-	}
-
-	var images []primitive.ObjectID
-	if len(messageDTO.Images) != 0 {
-		images, err = h.imageUsecase.CreateImages(context.TODO(), messageDTO.Images)
-		if err != nil {
-			log.Printf("fail to save images: %s", err.Error())
+	var msg models2.Message
+	var err error
+	if messageDTO.IsUpdate {
+		if err = h.messageUsecase.UpdateMessage(context.TODO(), messageDTO); err != nil {
+			log.Printf("fail to update message: %s", err.Error())
 			return
 		}
-	}
 
-	msg := models2.Message{
-		ID:        primitive.NewObjectID(),
-		Message:   &messageDTO.Message,
-		UserFrom:  sender,
-		ImageIDs:  &images,
-		CreatedAt: time.Now().Unix(),
-	}
+		if msg, err = h.messageUsecase.GetMessageByID(context.TODO(), messageDTO.ID); err != nil {
+			log.Printf("fail to get message: %s", err.Error())
+			return
+		}
+	} else {
+		var images []primitive.ObjectID
+		if len(messageDTO.Images) != 0 {
+			images, err = h.imageUsecase.CreateImages(context.TODO(), messageDTO.Images)
+			if err != nil {
+				log.Printf("fail to save images: %s", err.Error())
+				return
+			}
+		}
 
-	if err = h.messageUsecase.SaveMessage(context.TODO(), msg); err != nil {
-		log.Printf("fail to save message: %s", err.Error())
-		return
-	}
+		msg.ID = primitive.NewObjectID()
+		msg.Message = &messageDTO.Message
+		msg.UserFrom = messageDTO.SenderID
+		msg.ImageIDs = &images
+		msg.CreatedAt = time.Now().Unix()
 
-	if err = h.chatUsecase.SaveMessageToChat(context.TODO(), msg, chat.ID); err != nil {
-		log.Printf("fail to save message to chat: %s", err.Error())
-		return
+		if err = h.messageUsecase.SaveMessage(context.TODO(), msg); err != nil {
+			log.Printf("fail to save message: %s", err.Error())
+			return
+		}
+
+		if err = h.chatUsecase.SaveMessageToChat(context.TODO(), msg.ID, chat.ID); err != nil {
+			log.Printf("fail to save message to chat: %s", err.Error())
+			return
+		}
 	}
 
 	conns, ok := h.connections[chat.ID]
