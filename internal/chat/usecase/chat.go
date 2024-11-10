@@ -16,10 +16,10 @@ func NewChatUsecase(repo chat.Repository) *ChatUsecase {
 	return &ChatUsecase{repo: repo}
 }
 
-func (u *ChatUsecase) CreateOrGetChat(ctx context.Context, usersIds []primitive.ObjectID) (models.Chat, error) {
+func (u *ChatUsecase) CreateOrGetChat(ctx context.Context, usersIds []primitive.ObjectID) (models.Chat, []models2.Message, error) {
 	return u.repo.CreateOrGetChat(ctx, usersIds)
 }
 
-func (u *ChatUsecase) SaveMessageToChat(ctx context.Context, message models2.Message, chatId primitive.ObjectID) error {
-	return u.repo.SaveMessageToChat(ctx, message, chatId)
+func (u *ChatUsecase) SaveMessageToChat(ctx context.Context, messageId primitive.ObjectID, chatId primitive.ObjectID) error {
+	return u.repo.SaveMessageToChat(ctx, messageId, chatId)
 }
