@@ -25,7 +25,7 @@ func (r *MessageRepository) CreateMessage(ctx context.Context, message models2.M
 }
 
 func (r *MessageRepository) GetMessageByID(ctx context.Context, messageId primitive.ObjectID) (models2.Message, error) {
-	filter := bson.D{{"_id", messageId}}
+	filter := bson.M{"_id": messageId}
 
 	var message models2.Message
 	if err := r.db.FindOne(ctx, filter).Decode(&message); err != nil {
@@ -33,4 +33,12 @@ func (r *MessageRepository) GetMessageByID(ctx context.Context, messageId primit
 	}
 
 	return message, nil
+}
+
+func (r *MessageRepository) UpdateMessage(ctx context.Context, message models2.MessageDTO, updateTime int64) error {
+	filter := bson.D{{"_id", message.ID}}
+	upd := bson.M{"$set": bson.M{"message": message.Message, "updated_at": updateTime}}
+
+	_, err := r.db.UpdateOne(ctx, filter, upd)
+	return err
 }
