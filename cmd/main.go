@@ -10,6 +10,7 @@ import (
 	"ChatApp/internal/image"
 	repository5 "ChatApp/internal/image/repository"
 	usecase5 "ChatApp/internal/image/usecase"
+	"ChatApp/internal/message"
 	repository3 "ChatApp/internal/message/repository"
 	usecase3 "ChatApp/internal/message/usecase"
 	"ChatApp/internal/user"
@@ -53,8 +54,11 @@ func main() {
 	chatHandler := chat.NewChatHandler(chatUc, messageUc, imageUc)
 	chatHandler.ChatRouterInit(router)
 
+	messageHandler := message.NewMessageHandler(messageUc)
+	messageHandler.MessageRouterInit(router, authHandler.AuthMiddleware)
+
 	userHandler := user.NewUserHandler(userUc, imageUc)
-	userHandler.UserRouterInit(router, authHandler)
+	userHandler.UserRouterInit(router, authHandler.AuthMiddleware)
 
 	imageHandler := image.NewImageHandler(usecase5.NewImageUsecase(imageRepo))
 	imageHandler.ImageRouterInit(router)

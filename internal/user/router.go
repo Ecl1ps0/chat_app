@@ -1,12 +1,11 @@
 package user
 
 import (
-	"ChatApp/internal/auth"
 	"net/http"
 )
 
-func (h *UserHandler) UserRouterInit(router *http.ServeMux, authHandler *auth.AuthHandler) {
-	router.HandleFunc("/api/user/available-users", authHandler.AuthMiddleware(h.GetAllAvailableUsers))
-	router.HandleFunc("/api/user", authHandler.AuthMiddleware(h.GetUser))
-	router.HandleFunc("/api/update/user", authHandler.AuthMiddleware(h.UpdateUser))
+func (h *UserHandler) UserRouterInit(router *http.ServeMux, authMiddleware func(http.HandlerFunc) http.HandlerFunc) {
+	router.HandleFunc("/api/user/available-users", authMiddleware(h.GetAllAvailableUsers))
+	router.HandleFunc("/api/user", authMiddleware(h.GetUser))
+	router.HandleFunc("/api/update/user", authMiddleware(h.UpdateUser))
 }
