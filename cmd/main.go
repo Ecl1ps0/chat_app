@@ -52,7 +52,7 @@ func main() {
 	authHandler.AuthRouterInit(router)
 
 	chatHandler := chat.NewChatHandler(chatUc, messageUc, imageUc)
-	chatHandler.ChatRouterInit(router)
+	chatHandler.ChatRouterInit(router, authHandler.AuthMiddleware)
 
 	messageHandler := message.NewMessageHandler(messageUc)
 	messageHandler.MessageRouterInit(router, authHandler.AuthMiddleware)
