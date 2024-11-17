@@ -97,15 +97,14 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := r.MultipartForm.File["profile_picture"]
-	if files != nil {
-		fileHeader, err := files[0].Open()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	file, _, err := r.FormFile("profile_picture")
+	if err != nil && err.Error() != "http: no such file" {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-		imageId, err := h.imageUsecase.CreateImage(context.TODO(), fileHeader)
+	if file != nil {
+		imageId, err := h.imageUsecase.CreateImage(context.TODO(), file)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

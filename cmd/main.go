@@ -1,6 +1,9 @@
 package main
 
 import (
+	"ChatApp/internal/audio"
+	repository6 "ChatApp/internal/audio/repository"
+	usecase6 "ChatApp/internal/audio/usecase"
 	"ChatApp/internal/auth"
 	"ChatApp/internal/auth/repository"
 	"ChatApp/internal/auth/usecase"
@@ -41,17 +44,19 @@ func main() {
 	messageRepo := repository3.NewMessageRepository(database, "messages")
 	userRepo := repository4.NewUserRepository(database, "users")
 	imageRepo := repository5.NewImageRepository(database, "images")
+	audioRepo := repository6.NewAudioRepository(database, "audios")
 
 	authUc := usecase.NewAuthUsecase(authRepo)
 	chatUc := usecase2.NewChatUsecase(chatRepo)
 	messageUc := usecase3.NewMessageUsecase(messageRepo)
 	imageUc := usecase5.NewImageUsecase(imageRepo)
 	userUc := usecase4.NewUserUsecase(userRepo)
+	audioUc := usecase6.NewAudioUsecase(audioRepo)
 
 	authHandler := auth.NewAuthHandler(authUc)
 	authHandler.AuthRouterInit(router)
 
-	chatHandler := chat.NewChatHandler(chatUc, messageUc, imageUc)
+	chatHandler := chat.NewChatHandler(chatUc, messageUc)
 	chatHandler.ChatRouterInit(router, authHandler.AuthMiddleware)
 
 	messageHandler := message.NewMessageHandler(messageUc)
@@ -62,6 +67,9 @@ func main() {
 
 	imageHandler := image.NewImageHandler(usecase5.NewImageUsecase(imageRepo))
 	imageHandler.ImageRouterInit(router, authHandler.AuthMiddleware)
+
+	audioHandler := audio.NewAudioHandler(audioUc)
+	audioHandler.AudioRouterInit(router, authHandler.AuthMiddleware)
 
 	handler := cors.New(cors.Options{
 		AllowedOrigins: []string{"https://chat-app-front-sigma.vercel.app"},

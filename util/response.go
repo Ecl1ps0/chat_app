@@ -15,7 +15,7 @@ func JSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	}
 }
 
-func ImageResponse(w http.ResponseWriter, statusCode int, imageData []byte, imageType string) {
+func FileResponse(w http.ResponseWriter, statusCode int, imageData []byte, imageType string) {
 	w.Header().Set("Content-Type", imageType)
 	w.WriteHeader(statusCode)
 

@@ -73,5 +73,5 @@ func (h *ImageHandler) GetImage(w http.ResponseWriter, r *http.Request) {
 
 	imageType := http.DetectContentType(imageData)
 
-	util.ImageResponse(w, http.StatusOK, imageData, imageType)
+	util.FileResponse(w, http.StatusOK, imageData, imageType)
 }
