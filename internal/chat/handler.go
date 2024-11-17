@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"ChatApp/internal/image"
 	"ChatApp/internal/message"
 	models2 "ChatApp/internal/message/models"
 	"ChatApp/util"
@@ -19,7 +18,6 @@ import (
 type ChatHandler struct {
 	chatUsecase    Usecase
 	messageUsecase message.Usecase
-	imageUsecase   image.Usecase
 	connections    map[primitive.ObjectID][]*websocket.Conn
 	mu             sync.Mutex
 }
@@ -32,11 +30,10 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func NewChatHandler(chatUsecase Usecase, messageUsecase message.Usecase, imageUsecase image.Usecase) *ChatHandler {
+func NewChatHandler(chatUsecase Usecase, messageUsecase message.Usecase) *ChatHandler {
 	return &ChatHandler{
 		chatUsecase:    chatUsecase,
 		messageUsecase: messageUsecase,
-		imageUsecase:   imageUsecase,
 		connections:    make(map[primitive.ObjectID][]*websocket.Conn),
 	}
 }
@@ -120,6 +117,7 @@ func (h *ChatHandler) broadcastMessage(chatId primitive.ObjectID, messageDTO mod
 		msg.Message = &messageDTO.Message
 		msg.UserFrom = messageDTO.SenderID
 		msg.ImageIDs = &messageDTO.Images
+		msg.AudioID = &messageDTO.Audio
 		msg.CreatedAt = time.Now().Unix()
 
 		if err = h.messageUsecase.SaveMessage(context.TODO(), msg); err != nil {
