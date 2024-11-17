@@ -145,19 +145,10 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.Mes
 			return
 		}
 	} else {
-		var images []primitive.ObjectID
-		if len(messageDTO.Images) != 0 {
-			images, err = h.imageUsecase.CreateImages(context.TODO(), messageDTO.Images)
-			if err != nil {
-				log.Printf("fail to save images: %s", err.Error())
-				return
-			}
-		}
-
 		msg.ID = primitive.NewObjectID()
 		msg.Message = &messageDTO.Message
 		msg.UserFrom = messageDTO.SenderID
-		msg.ImageIDs = &images
+		msg.ImageIDs = &messageDTO.Images
 		msg.CreatedAt = time.Now().Unix()
 
 		if err = h.messageUsecase.SaveMessage(context.TODO(), msg); err != nil {
