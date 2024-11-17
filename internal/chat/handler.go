@@ -1,10 +1,10 @@
 package chat
 
 import (
-	"ChatApp/internal/chat/models"
 	"ChatApp/internal/image"
 	"ChatApp/internal/message"
 	models2 "ChatApp/internal/message/models"
+	"ChatApp/util"
 	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
@@ -49,51 +49,22 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	var usersIds models.UsersIdsDTO
 	_, msg, err := conn.ReadMessage()
 	if err != nil {
 		log.Printf("fail to read message: %s", err.Error())
 		return
 	}
 
-	if err = json.Unmarshal(msg, &usersIds); err != nil {
-		log.Printf("fail to unmarshal: %s", err.Error())
-		return
-	}
-
-	user1ID, err := primitive.ObjectIDFromHex(usersIds.User1ID)
+	chatId, err := primitive.ObjectIDFromHex(string(msg))
 	if err != nil {
-		log.Printf("invalid user1 ID: %s", err.Error())
+		log.Printf("fail to parse chatId: %s", err.Error())
 		return
 	}
 
-	user2ID, err := primitive.ObjectIDFromHex(usersIds.User2ID)
-	if err != nil {
-		log.Printf("invalid user2 ID: %s", err.Error())
-		return
-	}
-
-	chat, messages, err := h.chatUsecase.CreateOrGetChat(context.TODO(), []primitive.ObjectID{user1ID, user2ID})
-	if err != nil {
-		log.Printf("fail to get or create chat: %s", err.Error())
-		return
-	}
-
-	sort.Slice(messages, func(i, j int) bool {
-		return messages[i].CreatedAt < messages[j].CreatedAt
-	})
-
-	if err = conn.WriteJSON(map[string]interface{}{
-		"chat_messages": messages,
-	}); err != nil {
-		log.Printf("fail to send json response: %s", err.Error())
-		return
-	}
-
-	log.Printf("Chat successfully started with id: %s", chat.ID.Hex())
+	log.Printf("Chat successfully started with id: %s", chatId.Hex())
 
 	h.mu.Lock()
-	h.connections[chat.ID] = append(h.connections[chat.ID], conn)
+	h.connections[chatId] = append(h.connections[chatId], conn)
 	h.mu.Unlock()
 
 	var messageDTO models2.MessageDTO
@@ -108,10 +79,10 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 			log.Printf("fail to read a message: %s", err.Error())
 
 			h.mu.Lock()
-			conns := h.connections[chat.ID]
+			conns := h.connections[chatId]
 			for i, c := range conns {
 				if c == conn {
-					h.connections[chat.ID] = append(conns[:i], conns[i+1:]...)
+					h.connections[chatId] = append(conns[:i], conns[i+1:]...)
 					break
 				}
 			}
@@ -124,11 +95,11 @@ func (h *ChatHandler) StartChat(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		h.broadcastMessage(&chat, messageDTO)
+		h.broadcastMessage(chatId, messageDTO)
 	}
 }
 
-func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.MessageDTO) {
+func (h *ChatHandler) broadcastMessage(chatId primitive.ObjectID, messageDTO models2.MessageDTO) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -156,15 +127,15 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.Mes
 			return
 		}
 
-		if err = h.chatUsecase.SaveMessageToChat(context.TODO(), msg.ID, chat.ID); err != nil {
+		if err = h.chatUsecase.SaveMessageToChat(context.TODO(), msg.ID, chatId); err != nil {
 			log.Printf("fail to save message to chat: %s", err.Error())
 			return
 		}
 	}
 
-	conns, ok := h.connections[chat.ID]
+	conns, ok := h.connections[chatId]
 	if !ok {
-		log.Printf("the chat with id: %s does not exist", chat.ID.Hex())
+		log.Printf("the chat with id: %s does not exist", chatId.Hex())
 		return
 	}
 
@@ -180,4 +151,50 @@ func (h *ChatHandler) broadcastMessage(chat *models.Chat, messageDTO models2.Mes
 			return
 		}
 	}
+}
+
+func (h *ChatHandler) ChatInit(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	user1ID := r.URL.Query().Get("user1_id")
+	if user1ID == "" {
+		http.Error(w, "fail to get users id", http.StatusBadRequest)
+		return
+	}
+
+	user2ID := r.URL.Query().Get("user2_id")
+	if user2ID == "" {
+		http.Error(w, "fail to get users id", http.StatusBadRequest)
+		return
+	}
+
+	user1, err := primitive.ObjectIDFromHex(user1ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user2, err := primitive.ObjectIDFromHex(user2ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	chat, messages, err := h.chatUsecase.CreateOrGetChat(context.TODO(), []primitive.ObjectID{user1, user2})
+	if err != nil {
+		log.Printf("fail to get or create chat: %s", err.Error())
+		return
+	}
+
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].CreatedAt < messages[j].CreatedAt
+	})
+
+	util.JSONResponse(w, http.StatusOK, map[string]interface{}{
+		"chat_id":       chat.ID.Hex(),
+		"chat_messages": messages,
+	})
 }
