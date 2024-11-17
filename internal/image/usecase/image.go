@@ -8,6 +8,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	image2 "image"
+	"mime/multipart"
 	"time"
 )
 
@@ -19,22 +21,27 @@ func NewImageUsecase(repo image.Repository) *ImageUsecase {
 	return &ImageUsecase{repo: repo}
 }
 
-func (u *ImageUsecase) CreateImages(ctx context.Context, imageCodes []string) ([]primitive.ObjectID, error) {
-	var images []models.Image
-	for _, code := range imageCodes {
-		jpegCode, err := util.ToJPEG(code)
+func (u *ImageUsecase) CreateImages(ctx context.Context, files []multipart.File) ([]primitive.ObjectID, error) {
+	var imageCodes []models.Image
+	for _, file := range files {
+		img, _, err := image2.Decode(file)
 		if err != nil {
 			return nil, err
 		}
 
-		images = append(images, models.Image{
+		jpegCode, err := util.ToJPEGBase64(img)
+		if err != nil {
+			return nil, err
+		}
+
+		imageCodes = append(imageCodes, models.Image{
 			ID:        primitive.NewObjectID(),
 			ImageCode: jpegCode,
 			CreatedAt: time.Now().Unix(),
 		})
 	}
 
-	imageIdsInterface, err := u.repo.CreateImages(ctx, images)
+	imageIdsInterface, err := u.repo.CreateImages(ctx, imageCodes)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +49,13 @@ func (u *ImageUsecase) CreateImages(ctx context.Context, imageCodes []string) ([
 	return util.ToType[primitive.ObjectID](imageIdsInterface)
 }
 
-func (u *ImageUsecase) CreateImage(ctx context.Context, imageCode string) (primitive.ObjectID, error) {
-	jpegCode, err := util.ToJPEG(imageCode)
+func (u *ImageUsecase) CreateImage(ctx context.Context, file multipart.File) (primitive.ObjectID, error) {
+	decodedImage, _, err := image2.Decode(file)
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+
+	jpegCode, err := util.ToJPEGBase64(decodedImage)
 	if err != nil {
 		return primitive.NilObjectID, err
 	}
