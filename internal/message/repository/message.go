@@ -17,11 +17,9 @@ func NewMessageRepository(db *mongo.Database, collection string) *MessageReposit
 }
 
 func (r *MessageRepository) CreateMessage(ctx context.Context, message models2.Message) error {
-	if _, err := r.db.InsertOne(ctx, &message); err != nil {
-		return err
-	}
+	_, err := r.db.InsertOne(ctx, &message)
 
-	return nil
+	return err
 }
 
 func (r *MessageRepository) GetMessageByID(ctx context.Context, messageId primitive.ObjectID) (models2.Message, error) {
