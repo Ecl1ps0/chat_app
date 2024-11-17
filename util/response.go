@@ -14,3 +14,13 @@ func JSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 		return
 	}
 }
+
+func ImageResponse(w http.ResponseWriter, statusCode int, imageData []byte, imageType string) {
+	w.Header().Set("Content-Type", imageType)
+	w.WriteHeader(statusCode)
+
+	if _, err := w.Write(imageData); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

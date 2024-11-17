@@ -7,25 +7,14 @@ import (
 	"image/jpeg"
 )
 
-func ToJPEG(code string) ([]byte, error) {
-	decodedImage, err := base64.StdEncoding.DecodeString(code)
-	if err != nil {
+func ToJPEGBase64(image image2.Image) ([]byte, error) {
+	var jpegData bytes.Buffer
+	if err := jpeg.Encode(&jpegData, image, &jpeg.Options{Quality: 70}); err != nil {
 		return nil, err
 	}
 
-	img, _, err := image2.Decode(bytes.NewReader(decodedImage))
-	if err != nil {
-		return nil, err
-	}
-
-	var imgBuffer bytes.Buffer
-	if err = jpeg.Encode(&imgBuffer, img, &jpeg.Options{Quality: 70}); err != nil {
-		return nil, err
-	}
-
-	jpegData := imgBuffer.Bytes()
-	jpegImgCode := make([]byte, base64.StdEncoding.EncodedLen(len(jpegData)))
-	base64.StdEncoding.Encode(jpegImgCode, jpegData)
+	jpegImgCode := make([]byte, base64.StdEncoding.EncodedLen(len(jpegData.Bytes())))
+	base64.StdEncoding.Encode(jpegImgCode, jpegData.Bytes())
 
 	return jpegImgCode, nil
 }

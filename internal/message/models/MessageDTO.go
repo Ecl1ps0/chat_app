@@ -3,9 +3,9 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type MessageDTO struct {
-	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	SenderID primitive.ObjectID `json:"sender_id" bson:"_id""`
-	Message  string             `json:"message,omitempty"`
-	Images   []string           `json:"images,omitempty"`
-	IsUpdate bool               `json:"is_update,omitempty"`
+	ID       primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	SenderID primitive.ObjectID   `json:"sender_id" bson:"_id"`
+	Message  string               `json:"message,omitempty"`
+	Images   []primitive.ObjectID `json:"images,omitempty"`
+	IsUpdate bool                 `json:"is_update,omitempty"`
 }

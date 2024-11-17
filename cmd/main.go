@@ -61,7 +61,7 @@ func main() {
 	userHandler.UserRouterInit(router, authHandler.AuthMiddleware)
 
 	imageHandler := image.NewImageHandler(usecase5.NewImageUsecase(imageRepo))
-	imageHandler.ImageRouterInit(router)
+	imageHandler.ImageRouterInit(router, authHandler.AuthMiddleware)
 
 	handler := cors.New(cors.Options{
 		AllowedOrigins: []string{"https://chat-app-front-sigma.vercel.app"},

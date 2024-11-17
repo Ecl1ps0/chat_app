@@ -4,8 +4,8 @@ import (
 	"ChatApp/internal/image"
 	"ChatApp/util"
 	"context"
-	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -13,7 +13,7 @@ import (
 type UpdateDTO struct {
 	ID             primitive.ObjectID `json:"id"`
 	Username       string             `json:"username"`
-	ProfilePicture *string            `json:"profile_picture"`
+	ProfilePicture *multipart.File    `json:"profile_picture"`
 	Bio            *string            `json:"bio"`
 	Email          *string            `json:"email"`
 }
@@ -92,14 +92,20 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userData UpdateDTO
-	if err = json.NewDecoder(r.Body).Decode(&userData); err != nil {
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if userData.ProfilePicture != nil {
-		imageId, err := h.imageUsecase.CreateImage(context.TODO(), *userData.ProfilePicture)
+	files := r.MultipartForm.File["profile_picture"]
+	if files != nil {
+		fileHeader, err := files[0].Open()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		imageId, err := h.imageUsecase.CreateImage(context.TODO(), fileHeader)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -108,8 +114,11 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.ProfilePicture = &imageId
 	}
 
-	user.Bio = userData.Bio
-	user.Email = userData.Email
+	bio := r.PostFormValue("bio")
+	user.Bio = &bio
+
+	email := r.PostFormValue("email")
+	user.Email = &email
 
 	newToken, err := h.usecase.UpdateUser(context.TODO(), user)
 	if err != nil {
