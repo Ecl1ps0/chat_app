@@ -40,3 +40,11 @@ func (r *MessageRepository) UpdateMessage(ctx context.Context, message models2.M
 	_, err := r.db.UpdateOne(ctx, filter, upd)
 	return err
 }
+
+func (r *MessageRepository) DeleteMessageForUsers(ctx context.Context, messageId primitive.ObjectID, DeletedFor map[primitive.ObjectID]int64) error {
+	filter := bson.M{"_id": messageId}
+	upd := bson.M{"$set": bson.M{"deleted_for": DeletedFor}}
+
+	_, err := r.db.UpdateOne(ctx, filter, upd)
+	return err
+}
