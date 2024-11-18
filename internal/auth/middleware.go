@@ -2,6 +2,7 @@ package auth
 
 import (
 	"ChatApp/util"
+	"context"
 	"net/http"
 	"strings"
 )
@@ -20,11 +21,14 @@ func (h *AuthHandler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		if _, err := util.ParseToken(headerParts[1]); err != nil {
+		user, err := util.ParseToken(headerParts[1])
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), "currentUser", &user)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
