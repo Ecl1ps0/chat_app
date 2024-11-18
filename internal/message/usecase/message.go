@@ -27,3 +27,12 @@ func (u *MessageUsecase) GetMessageByID(ctx context.Context, messageId primitive
 func (u *MessageUsecase) UpdateMessage(ctx context.Context, message models2.MessageDTO) error {
 	return u.repo.UpdateMessage(ctx, message, time.Now().Unix())
 }
+
+func (u *MessageUsecase) DeleteMessageForUsers(ctx context.Context, messageId primitive.ObjectID, DeleteFor []primitive.ObjectID) error {
+	DeletedForMap := make(map[primitive.ObjectID]int64)
+	for _, id := range DeleteFor {
+		DeletedForMap[id] = time.Now().Unix()
+	}
+
+	return u.repo.DeleteMessageForUsers(ctx, messageId, DeletedForMap)
+}

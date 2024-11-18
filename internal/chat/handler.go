@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"ChatApp/internal/auth/models"
 	"ChatApp/internal/message"
 	models2 "ChatApp/internal/message/models"
 	"ChatApp/util"
@@ -112,12 +113,23 @@ func (h *ChatHandler) broadcastMessage(chatId primitive.ObjectID, messageDTO mod
 			log.Printf("fail to get message: %s", err.Error())
 			return
 		}
+	} else if messageDTO.DeleteFor != nil {
+		if err = h.messageUsecase.DeleteMessageForUsers(context.TODO(), messageDTO.ID, messageDTO.DeleteFor); err != nil {
+			log.Printf("fail to delete message: %s", err.Error())
+			return
+		}
+
+		if msg, err = h.messageUsecase.GetMessageByID(context.TODO(), messageDTO.ID); err != nil {
+			log.Printf("fail to get message: %s", err.Error())
+			return
+		}
 	} else {
 		msg.ID = primitive.NewObjectID()
 		msg.Message = &messageDTO.Message
 		msg.UserFrom = messageDTO.SenderID
 		msg.ImageIDs = &messageDTO.Images
-		msg.AudioID = &messageDTO.Audio
+		msg.AudioID = messageDTO.Audio
+		msg.DeletedFor = make(map[primitive.ObjectID]int64)
 		msg.CreatedAt = time.Now().Unix()
 
 		if err = h.messageUsecase.SaveMessage(context.TODO(), msg); err != nil {
@@ -187,12 +199,22 @@ func (h *ChatHandler) ChatInit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sort.Slice(messages, func(i, j int) bool {
+	currentUser := r.Context().Value("currentUser").(*models.UserDTO)
+	filteredMessages := make([]models2.Message, 0)
+	for _, msg := range messages {
+		if _, ok := msg.DeletedFor[currentUser.ID]; ok {
+			continue
+		}
+
+		filteredMessages = append(filteredMessages, msg)
+	}
+
+	sort.Slice(filteredMessages, func(i, j int) bool {
 		return messages[i].CreatedAt < messages[j].CreatedAt
 	})
 
 	util.JSONResponse(w, http.StatusOK, map[string]interface{}{
 		"chat_id":       chat.ID.Hex(),
-		"chat_messages": messages,
+		"chat_messages": filteredMessages,
 	})
 }
