@@ -21,7 +21,7 @@ func GenerateToken(user models.UserDTO) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
 		User: user,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(12 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
 		},
 	})
 
