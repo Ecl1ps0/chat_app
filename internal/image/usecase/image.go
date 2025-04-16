@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"github.com/sunshineplan/imgconv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	image2 "image"
 	"mime/multipart"
@@ -24,7 +25,7 @@ func NewImageUsecase(repo image.Repository) *ImageUsecase {
 func (u *ImageUsecase) CreateImages(ctx context.Context, files []multipart.File) ([]primitive.ObjectID, error) {
 	var imageCodes []models.Image
 	for _, file := range files {
-		img, _, err := image2.Decode(file)
+		img, err := imgconv.Decode(file)
 		if err != nil {
 			return nil, err
 		}

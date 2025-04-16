@@ -210,7 +210,7 @@ func (h *ChatHandler) ChatInit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sort.Slice(filteredMessages, func(i, j int) bool {
-		return messages[i].CreatedAt < messages[j].CreatedAt
+		return filteredMessages[i].CreatedAt < filteredMessages[j].CreatedAt
 	})
 
 	util.JSONResponse(w, http.StatusOK, map[string]interface{}{
