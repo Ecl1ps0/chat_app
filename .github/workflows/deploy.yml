@@ -19,6 +19,9 @@ jobs:
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
+      - name: Show current working directory
+        run: pwd
+
       - name: Build and Push Docker Images
         working-directory: ./
         run: |
