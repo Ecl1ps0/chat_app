@@ -24,6 +24,7 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
+          mkdir -p frontend backend
           docker build -t ${{ secrets.DOCKER_USER }}/chatapp-frontend ./frontend
           docker build -t ${{ secrets.DOCKER_USER }}/chatapp-backend ./backend
           docker push ${{ secrets.DOCKER_USER }}/chatapp-frontend
