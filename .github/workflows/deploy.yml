@@ -20,7 +20,7 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
       - name: Build and Push Docker Images
-        working-directory: ./actions-runner
+        working-directory: ./
         run: |
           docker build -t ${{ secrets.DOCKER_USER }}/chatapp-frontend ./frontend
           docker build -t ${{ secrets.DOCKER_USER }}/chatapp-backend ./backend
