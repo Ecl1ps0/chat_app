@@ -6,7 +6,7 @@
     "scripts": {
         "test": "jest --coverage",
         "dev": "vite",
-        "build": "vue-tsc -b && vite build",
+        "build": "vue-tsc -b && node --max-old-space-size=2048 node_modules/vite/bin/vite.js build --debug",
         "preview": "vite preview"
     },
     "dependencies": {
