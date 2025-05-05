@@ -24,7 +24,7 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
-          docker build -t ${{ secrets.DOCKER_USER }}/chatapp-frontend ./chat-app-frontend
+          docker build -t ${{ secrets.DOCKER_USER }}/chatapp-frontend ./chat-app-frontend --progress=plain
           docker build -t ${{ secrets.DOCKER_USER }}/chatapp-backend .
           docker push ${{ secrets.DOCKER_USER }}/chatapp-frontend
           docker push ${{ secrets.DOCKER_USER }}/chatapp-backend
