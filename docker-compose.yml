@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: ecl1ps0/chatapp-frontend:latest
+    deploy:
+      placement:
+        constraints: [node.hostname == ip-172-31-23-185]
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: ecl1ps0/chatapp-backend:latest
+    deploy:
+      placement:
+        constraints: [node.hostname == ip-172-31-24-209]
+
+  nginx:
+    image: nginx:alpine
+    deploy:
+      placement:
+        constraints: [node.hostname == ip-172-31-28-101]
+    ports:
+      - "80:80"
