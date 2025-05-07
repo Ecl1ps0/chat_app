@@ -34,8 +34,8 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
-          docker build --build-arg VITE_DOMAIN_HTTPS=http://16.171.65.117 --build-arg VITE_DOMAIN_WSS=ws://16.171.65.117 -t ${{ secrets.DOCKER_USER }}/chatapp-frontend ./chat-app-frontend --progress=plain
-          docker build -t ${{ secrets.DOCKER_USER }}/chatapp-backend .
+          docker build --build-arg VITE_DOMAIN_HTTPS=http://16.171.65.117 --build-arg VITE_DOMAIN_WSS=ws://16.171.65.117 -t ${{ secrets.DOCKER_USER }}/chatapp-frontend ./chat-app-frontend --progress=plain --no-cache
+          docker build -t ${{ secrets.DOCKER_USER }}/chatapp-backend . --progress=plain --no-cache
           docker push ${{ secrets.DOCKER_USER }}/chatapp-frontend
           docker push ${{ secrets.DOCKER_USER }}/chatapp-backend
 
