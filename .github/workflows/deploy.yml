@@ -45,7 +45,7 @@ jobs:
           host: ${{ secrets.MANAGER_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "/home/runner/actions-runner/_work/chat_app/chat_app/docker-compose.yml"
+          source: "./docker-compose.yml"
           target: "/home/ubuntu/deploy"
 
       - name: SSH to Manager and Deploy Stack
