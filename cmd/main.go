@@ -72,7 +72,7 @@ func main() {
 	audioHandler.AudioRouterInit(router, authHandler.AuthMiddleware)
 
 	handler := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://16.171.65.117", "https://chat-app-front-sigma.vercel.app"},
+		AllowedOrigins: []string{"http://16.171.65.117", "http://13.49.21.134", "https://chat-app-front-sigma.vercel.app"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}).Handler(router)
