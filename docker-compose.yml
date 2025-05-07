@@ -4,6 +4,9 @@ services:
 
   backend:
     image: ecl1ps0/chatapp-backend:latest
+    environment:
+      - MONGO_URI=mongodb+srv://admin:rKLDYu4JQgtffI0W@chatapp.j4ybl.mongodb.net/?retryWrites=true&w=majority&appName=ChatApp
+      - SIGN_KEY=itISaSECRET
     deploy:
       placement:
         constraints: [node.hostname == ip-172-31-24-209]
