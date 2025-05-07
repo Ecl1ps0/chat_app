@@ -7,8 +7,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx:1.28-alpine
-ENV VITE_DOMAIN_HTTPS = http://172.31.24.209
-ENV VITE_DOMAIN_WSS = ws://172.31.24.209
+ENV VITE_DOMAIN_HTTPS=http://172.31.24.209
+ENV VITE_DOMAIN_WSS=ws://172.31.24.209
 COPY --from=build /app/dist /opt/site
 COPY nginx.conf /etc/nginx/nginx.conf
 
