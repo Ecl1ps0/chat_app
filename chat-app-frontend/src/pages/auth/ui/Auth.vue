@@ -132,6 +132,20 @@ const onSubmit = async (values: any) => {
                     <template v-else> Register </template>
                 </Button>
             </CardFooter>
+            <p class="text-sm text-center text-gray-600">
+                <template v-if="isRegistration">
+                    Already have an account?
+                    <span class="text-blue-600 cursor-pointer underline" @click="isRegistration = false">
+                        Login here
+                    </span>
+                </template>
+                <template v-else>
+                    Don't have an account?
+                    <span class="text-blue-600 cursor-pointer underline" @click="isRegistration = true">
+                        Register here
+                    </span>
+                </template>
+            </p>
         </Card>
     </div>
 </template>
