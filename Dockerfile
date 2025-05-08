@@ -16,9 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     go build -o main ./cmd/main.go
 
-FROM debian:bullseye-slim
-
-RUN apt-get update && apt-get install -y libc6
+FROM ubuntu:latest
 
 WORKDIR /app
 COPY --from=builder /app/main .
