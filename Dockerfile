@@ -15,3 +15,11 @@ COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     go build -o main ./cmd/main.go
+
+FROM debian:bullseye-slim
+
+WORKDIR /app
+COPY --from=builder /app/main .
+
+EXPOSE 8080
+CMD ["./main"]
