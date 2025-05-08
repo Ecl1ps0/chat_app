@@ -18,7 +18,10 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install -y libc6
+RUN apt-get update && apt-get install -y wget && \
+    wget https://ftp.debian.org/debian/pool/main/g/glibc/libc6_2.34-0ubuntu3.1_amd64.deb && \
+    dpkg -i libc6_2.34-0ubuntu3.1_amd64.deb && \
+    rm libc6_2.34-0ubuntu3.1_amd64.deb
 
 WORKDIR /app
 COPY --from=builder /app/main .
