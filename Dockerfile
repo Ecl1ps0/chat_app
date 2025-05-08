@@ -18,6 +18,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 FROM debian:bullseye-slim
 
+RUN apt-get update && apt-get install -y libc6
+
 WORKDIR /app
 COPY --from=builder /app/main .
 
