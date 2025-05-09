@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   backend:
     image: ecl1ps0/chatapp-backend:latest
     environment:
@@ -12,14 +11,20 @@ services:
         constraints:
           - node.labels.role == backend
     networks:
-      - default
+      - chatapp_network
 
   nginx:
     image: ecl1ps0/chatapp-frontend:latest
     deploy:
       placement:
-        constraints: [node.hostname == ip-172-31-28-101]
+        constraints:
+          - node.hostname == ip-172-31-28-101
     ports:
       - "80:80"
     networks:
-      - default
+      - chatapp_network
+
+networks:
+  chatapp_network:
+    driver: overlay
+    attachable: true
