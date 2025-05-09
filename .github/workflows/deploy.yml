@@ -26,12 +26,12 @@ jobs:
         run: |
           docker run --rm \
             -v $(pwd)/zap.yaml:/zap/wrk/zap.yaml \
-            -v $(pwd)/zap-reports:/zap/wrk/:rw \
+            -v $(pwd)/zap-reports:/zap/output:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t http://16.171.65.117:8080 \
-            -c zap.yaml \
-            -r zap-report.html \
-            -J zap-report.json \
+            -c /zap/wrk/zap.yaml \
+            -r /zap/output/zap-report.html \
+            -J /zap/output/zap-report.json \
             -m 2
 
       - name: Upload ZAP HTML Report
