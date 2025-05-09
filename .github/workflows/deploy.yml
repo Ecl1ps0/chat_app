@@ -22,17 +22,20 @@ jobs:
       - name: Pull OWASP ZAP Docker Image
         run: docker pull ghcr.io/zaproxy/zaproxy:stable
 
+      - name: Check PWD
+        run: pwd
+
       - name: Run OWASP ZAP Baseline Scan
         run: |
           docker run --rm \
-            -v $(pwd)/zap.yaml:/zap/wrk/zap.yaml \
-            -v $(pwd)/zap-reports:/zap/output:rw \
-            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://16.171.65.117:8080 \
-            -c /zap/wrk/zap.yaml \
-            -r /zap/output/zap-report.html \
-            -J /zap/output/zap-report.json \
-            -m 2
+          -v $(pwd)/zap.yaml:/zap/wrk/zap.yaml \
+          -v $(pwd)/zap-reports:/zap/reports/:rw \
+          ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+          -t http://16.171.65.117:8080 \
+          -c /zap/wrk/zap.yaml \
+          -r /zap/reports/zap-report.html \
+          -J /zap/reports/zap-report.json \
+          -m 2
 
       - name: Upload ZAP HTML Report
         uses: actions/upload-artifact@v4
