@@ -1,0 +1,8 @@
+scan:
+  rules:
+    - id: 10021
+      action: WARN
+    - id: 10049
+      action: IGNORE
+    - id: 90004
+      action: IGNORE
