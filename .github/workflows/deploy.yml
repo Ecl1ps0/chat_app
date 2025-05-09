@@ -28,7 +28,7 @@ jobs:
             -t http://16.171.65.117:8080/api/health \
             -r zap-report.html \
             -J zap-report.json \
-            -m 3
+            -m 2
 
       - name: Upload ZAP HTML Report
         uses: actions/upload-artifact@v4
