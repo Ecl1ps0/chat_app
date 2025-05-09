@@ -40,6 +40,15 @@ func main() {
 	database := db.Database("ChatApp")
 	router := http.NewServeMux()
 
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
+		}
+
+		util.JSONResponse(w, http.StatusOK, nil)
+	})
+
 	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
