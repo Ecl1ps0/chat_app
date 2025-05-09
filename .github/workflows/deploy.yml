@@ -11,6 +11,12 @@ jobs:
     name: OWASP ZAP Baseline Scan
 
     steps:
+      - name: DockerHub Login
+        run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+
+      - name: Pull OWASP ZAP Docker Image
+        run: docker pull owasp/zap2docker-stable
+
       - name: Run OWASP ZAP Baseline Scan
         run: |
           docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
