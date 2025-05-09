@@ -25,4 +25,4 @@ services:
 
 networks:
   chatapp_network:
-    driver: bridge
+    driver: overlay
