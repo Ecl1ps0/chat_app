@@ -21,6 +21,7 @@ import (
 	usecase4 "ChatApp/internal/user/usecase"
 	"ChatApp/pkg/mongo"
 	server2 "ChatApp/pkg/server"
+	"ChatApp/util"
 	"context"
 	"github.com/rs/cors"
 	"log"
@@ -38,6 +39,15 @@ func main() {
 
 	database := db.Database("ChatApp")
 	router := http.NewServeMux()
+
+	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
+		}
+
+		util.JSONResponse(w, http.StatusOK, nil)
+	})
 
 	authRepo := repository.NewAuthRepository(database, "users")
 	chatRepo := repository2.NewChatRepository(database, "chats")
