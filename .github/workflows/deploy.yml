@@ -29,6 +29,7 @@ jobs:
             -r zap-report.html \
             -J zap-report.json \
             -m 3
+            -x "^http://16\.171\.65\.117:8080/$"
 
       - name: Upload ZAP HTML Report
         uses: actions/upload-artifact@v4
