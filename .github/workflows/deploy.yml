@@ -28,7 +28,7 @@ jobs:
       - name: Run OWASP ZAP Baseline Scan
         run: |
           docker run --rm \
-          -v $(pwd)/zap.yaml:/zap/wrk/zap.yaml \
+          --mount type=volume,src=$(pwd)/zap.yaml,dst=/zap/wrk/zap.yaml \
           -v $(pwd)/zap-reports:/zap/reports/:rw \
           ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
           -t http://16.171.65.117:8080 \
